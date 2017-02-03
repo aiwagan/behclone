@@ -17,13 +17,14 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 
 # Fix error with Keras and TensorFlow
 import tensorflow as tf
-tf.python.control_flow_ops = tf
 
+tf.python.control_flow_ops = tf
 
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
+
 
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -54,15 +55,15 @@ def connect(sid, environ):
 
 def send_control(steering_angle, throttle):
     sio.emit("steer", data={
-    'steering_angle': steering_angle.__str__(),
-    'throttle': throttle.__str__()
+        'steering_angle': steering_angle.__str__(),
+        'throttle': throttle.__str__()
     }, skip_sid=True)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
     parser.add_argument('model', type=str,
-    help='Path to model definition json. Model weights should be on the same path.')
+                        help='Path to model definition json. Model weights should be on the same path.')
     args = parser.parse_args()
     with open(args.model, 'r') as jfile:
         model = model_from_json(jfile.read())
