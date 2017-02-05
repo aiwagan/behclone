@@ -1,9 +1,9 @@
+import json
+import random
 import numpy as np
 import cv2
 import pandas as pd
 from sklearn.model_selection import train_test_split
-import json
-import random
 
 from keras.models import Sequential
 from keras.layers import Convolution2D, Dense, Dropout, Flatten, Lambda
@@ -18,10 +18,10 @@ epochs = 20
 batch_size = 256
 dropout = .20
 
-# Driving log file is loaded here
+# Driving log file is loaded here.
 log = pd.read_csv(data_path + 'driving_log.csv')
 
-# Angle Filtering algorithm. We break the log into separate lists for each set of angles from -1 to 1.
+# Angle Filtering algorithm. We break the log into separate lists for each set of angles from -1 to 1 with a step size of 0.1.
 kl = []
 for i in np.arange(-1.0, 1.0, 0.1):
     kl.append(log[(log['steering'] > i) & (log['steering'] < (i + 0.1))])
@@ -36,6 +36,8 @@ for i in range(1, len(kl)):
 
 log = df
 
+# Driving log data contained three center, left and right images. Here it is separated and concatenated to add edge cases. 
+# 0.3 is added to the steering angle for left side images and 0.3 is subtracted from the right side images.
 X = pd.concat([log.ix[:, 0], log.ix[:, 1], log.ix[:, 2]])
 y = pd.concat([log.ix[:, 3], log.ix[:, 3] + 0.3, log.ix[:, 3] - 0.3])
 
@@ -50,18 +52,19 @@ num_test_images = len(X_test)
 
 def load_image(filename, log_path):
     """
-    :param filename: Name of the file to load
-    :param log_path: Name of the directory
-    :return: return an image
+        :param filename: Name of the file to load
+        :param log_path: Name of the directory
+        :return: return an image in RGB color Space
     """
     return cv2.cvtColor(cv2.imread(log_path + str.strip(filename)), cv2.COLOR_BGR2RGB)
 
 
 def random_shadow(img):
     """
-        :param img:
-        :param log_path: Name of the directory
+        :param img: An image 
         :return: return an image
+        Algorirthm randomly generates a rectangle which starts from the top of the image to the bottom of the image
+        The rectangle positions are merged to form a mask image which is subtracted from the input image to generate an image containing shadows. 
     """
     random.seed()
 
@@ -76,16 +79,15 @@ def random_shadow(img):
     return dst
 
 
-# randomily change the image brightness
+# brightness - referenced Vivek Yadav post
+# https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.yh93soib0
+
 def randomise_image_brightness(image):
     """
-    :param filename: Name of the file to load
-    :param log_path: Name of the directory
-    :return: return an image
+        :param image: Input image
+        :return: return an image in RGB Color space with randimly modified image brightness.
     """
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    # brightness - referenced Vivek Yadav post
-    # https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.yh93soib0
     bv = .4 + np.random.uniform()
     hsv[::2] = hsv[::2] * bv
 
@@ -96,9 +98,9 @@ def randomise_image_brightness(image):
 # https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.yh93soib0
 def jitter_image_rotation(image, steering):
     """
-    :param filename: Name of the file to load
-    :param log_path: Name of the directory
-    :return: return an image
+    :param image: input image 
+    :param steering: steering angle
+    :return: return an image which is randomlyand an steering angle randomly rotated the angle is modfied according to the rotation.
     """
 
     rows, cols, _ = image.shape
@@ -117,8 +119,9 @@ def jitter_image_rotation(image, steering):
 # crop camera image to fit nvidia model input shape
 def crop_camera(img, crop_height=66, crop_width=200):
     """
-    :param filename: Name of the file to load
-    :param log_path: Name of the directory
+    :param img: Name of the file to load
+    :param crop_height: Name of the directory
+    :param crop_width: Name of the directory
     :return: return an image
     """
     height = img.shape[0]
@@ -128,21 +131,21 @@ def crop_camera(img, crop_height=66, crop_width=200):
     return img[y_start:y_start + crop_height, x_start:x_start + crop_width]
 
 
-def data_generator(path=data_path, batch_size=128):
+def data_generator(path=data_path, batch_sz=128):
     """
-    :param filename: Name of the file to load
-    :param log_path: Name of the directory
-    :return: return an image
+    :param path: Name of the file to load
+    :param batch_sz: Name of the directory
+    :return: return a list of images and steering angles
     """
     train_batch_pointer = 0
     while True:
         features = []
         labels = []
-        for i in range(0, batch_size):
+        for i in range(0, batch_sz):
             row = (train_batch_pointer + i) % num_train_images
             img = crop_camera(load_image(X_train.iloc[row], path))
             steering = y_train.iloc[row]
-
+            # Image augmentation is performed here. I choose to use random_shadow, rotation and flip as part of my augmentations.
             image = random_shadow(img)
             image, steering = jitter_image_rotation(image, steering)
             # flip 50% randomily that are not driving straight
@@ -153,31 +156,29 @@ def data_generator(path=data_path, batch_size=128):
             features.append(image)
             labels.append(steering)
 
-        train_batch_pointer += batch_size
+        train_batch_pointer += batch_sz
 
         yield (np.array(features), np.array(labels))
 
 
-
-
-def val_generator(path=val_path, batch_size=128):
+def val_generator(path=val_path, batch_sz=128):
     """
-    :param filename: Name of the file to load
-    :param log_path: Name of the directory
-    :return: return an image
+    :param path: Name of the file to load
+    :param batch_sz: Name of the directory
+    :return: return a list of image and steering angles
     """
     val_batch_pointer = 0
     while True:
         features = []
         labels = []
 
-        for i in range(0, batch_size):
+        for i in range(0, batch_sz):
             # print('test='+val_batch_pointer)
             row = (val_batch_pointer + i) % num_test_images
             features.append(crop_camera(load_image(X_test.iloc[row], path)))
             labels.append(y_test.iloc[row])
 
-        val_batch_pointer += batch_size
+        val_batch_pointer += batch_sz
         yield (np.array(features), np.array(labels))
 
 
@@ -229,10 +230,11 @@ def build_nvidia_model(img_height=66, img_width=200, img_channels=3, dropout=.4)
 
 def get_callbacks():
     """
-    :return:
+    :return: Return the list of callbacks
     """
 
-    checkpoint = ModelCheckpoint("checkpoints/model-{val_loss:.4f}.h5", monitor='val_loss', verbose=1,
+    checkpoint = ModelCheckpoint("checkpoints/model-{val_loss:.4f}.h5",
+                                 monitor='val_loss', verbose=1,
                                  save_weights_only=True, save_best_only=True)
 
     #tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=False)
@@ -244,6 +246,7 @@ def get_callbacks():
     # return [checkpoint, tensorboard]
 
 
+# Start of the main function
 if __name__ == '__main__':
     # build model and display layers
     model = build_nvidia_model(dropout=dropout)
