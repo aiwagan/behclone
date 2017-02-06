@@ -27,7 +27,7 @@ augmented images using the random shadow, a small jitter and flipping options.
 #Architecture
 
 The following diagram shows the architecture of the model which was used by me. It roughly follows the NVidia Model 
-but I wanted to expriment with different types of layers and parameters I have chosen to modify it a bit. 
+but I wanted to experiment with different types of layers and parameters I have chosen to modify it a bit. 
 
 **_Has an appropriate model architecture been employed for the task?_**
 My neural network model is based on the Nvidia model but it is modified a bit to make something new. The model uses the 
@@ -45,10 +45,10 @@ Nadam optimizer has been used which is a modified version of the Adam optimizer.
 ![Behavioral Cloning Model ](model.png "Behavioral Cloning Model")
 
 1. The first layer is a normalization layer. THe input to this layer takes 66x200x3 images.
-2. Most of the activation function in the layers use the PReLU. It is much more smoother activation function. I have also experimented with additional LeakyRelu but found out that it was causing a jerky motion during driving.
+2. Most of the activation function in the layers use the PReLU. It is much more smoother activation function. 
+I have also experimented with additional LeakyRelu but found out that it was causing a jerky motion during driving.
 3. Dropout layer were used to prevent overfitting
 4. The Nestrov Adam optimizer was used for optimziation.
-5. Dropout layers were ussed for 
 The complete architecture was modelled as shown below.
 ```
 ____________________________________________________________________________________________________
