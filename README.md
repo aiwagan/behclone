@@ -13,34 +13,42 @@ the training and validation file to be the same.
 The drive.py is the main  driving component which drives the vehicle inside the simulator. It requires
 access to the saved model parameters file, which in our case is the model.h5 and model.json files.
 
-# Dataset
-The dataset is based on the training data available from the the udacity project, but I have added more data to it.
-The additional data comes from the driving on the Track 1 and A small bit of Track 2.
-
-The dataset is randomly split into 80/20 portions into training and testing sets. 
-
-## Image Augmentation
-The data is augmented using the three basic techniques in my algorithm:
-1: Change in Brightness
-2: Random Shadow Generation
-3: Random Flip
 
 
 ## Generator
-The training and validation functions are generators which when called return a set of image and label lists.
+The training and validation functions are generators which when called return a set of image and label lists. 
+They take 2 inputs each. The first input described the path where a particular dataset and the next parameter specifies the
+batch size of the data to be returned. 
+The training data generator is different from the validaton data generator because it contains the options to generate the 
+augmented images using the random shadow, a small jitter and flipping options.
+
+
 
 #Architecture
 
 The following diagram shows the architecture of the model which was used by me. It roughly follows the NVidia Model 
 but I wanted to expriment with different types of layers and parameters I have chosen to modify it a bit. 
 
+**_Has an appropriate model architecture been employed for the task?_**
+My neural network model is based on the Nvidia model but it is modified a bit to make something new. The model uses the 
+5 convolutional layers with (32,64,128,128,128) Filters with (5,5) and (3,3) sizes. Input to the model is normalized using the 
+Lambda layer.
+
+**_Has an attempt been made to reduce overfitting of the model?_**
+Dropout layers have been used extensively to reduce overfitting.
+
+**_Have the model parameters been tuned appropriately?_**
+Nadam optimizer has been used which is a modified version of the Adam optimizer.
+
+
 
 ![Behavioral Cloning Model ](model.png "Behavioral Cloning Model")
 
-1. The first layer is a normalization layer. THe inpt to this layer takes 66x200x3 images.
+1. The first layer is a normalization layer. THe input to this layer takes 66x200x3 images.
 2. Most of the activation function in the layers use the PReLU. It is much more smoother activation function. I have also experimented with additional LeakyRelu but found out that it was causing a jerky motion during driving.
 3. Dropout layer were used to prevent overfitting
 4. The Nestrov Adam optimizer was used for optimziation.
+5. Dropout layers were ussed for 
 The complete architecture was modelled as shown below.
 ```
 ____________________________________________________________________________________________________
@@ -97,22 +105,32 @@ Trainable params: 1,348,929
 Non-trainable params: 0
 ____________________________________________________________________________________________________
 ```
-# Training approach
+# Dataset
+**_Is the training data chosen appropriately?_**
+The dataset is based on the training data available from the the udacity project, but I have added more data to it.
+The additional data comes from the driving on the Track 1 and A small bit of Track 2.
+
+The dataset is randomly split into 80/20 portions into training and testing sets. 
+
+## Image Augmentation
+The data is augmented using the three basic techniques in my algorithm:
+1: Change in Brightness : The algorithm converts the image from RGB space to HSV space and
+ randomly modifies the H value.
+
+2: Random Shadow Generation : The random shadow is generated using the two top and two bottm positions where 
+positions are chosen randomly. Then a random value is subtracted from the pixels inside that quadrilateral.
+
+3. Image random rotation : Image is randomly rotated with a small angle.
+
+4: Random Flip : Image is flipped horizontally and the steering angle is negated to balance the left and right turns in
+the driving data.
+
 
 # Experiments and Results
 Based on the results achieved it was observed the algorithm learned to drive on the Track 1 
 without any major problem. Only real problem was the track 2 which has difficult lightening conditions which
-causes troubles for my model. Although my is able to cover most of track 2 it gets stuck at the end of the track which
-highly curved. This problem can be solved by adding these curved portions to solve our proved
+causes troubles for my model. Although my model is able to cover most of track 2 it gets stuck at the end of 
+the track which is highly curved. This problem can be solved by adding these curved portions which I intend 
+to do in future.
+All the settings were tested using the Fastest mode in the simulator with the lowest resolution.
 
-
-Is the model architecture documented?
-
-The README provides sufficient details of the characteristics and qualities of the architecture, such as the type of model used, the number of layers, the size of each layer. 
-Visualizations emphasizing particular qualities of the architecture are encouraged.
-
-
-Is the creation of the training dataset and training process documented?
-
-The README describes how the model was trained and what the characteristics of the dataset are. Information
- such as how the dataset was generated and examples of images from the dataset should be included.
