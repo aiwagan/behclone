@@ -1,22 +1,42 @@
 # Behavioral Cloning
-
-## Dependencies
+This is a brief overview of my Behavioral cloning project. I started with the NVidia model initially and I found out
+that it was sufficient to complete the project. I have experimented with several different configurations
+before settling on the configuration described below. The main thrust was to experiment and complete
+the project with some new additions.
 
 ## Usage
+There are two major portions of the system. There is a behaviour training component which is coded
+in the model.py file. The model.py file has some parameters which can be setup inside the file. 
+The paths to training and validation folders can be set here. For the  sack of training here I have kept
+the training and validation file to be the same. 
 
+The drive.py is the main  driving component which drives the vehicle inside the simulator. It requires
+access to the saved model parameters file, which in our case is the model.h5 and model.json files.
 
-# Dataset Generator
+# Dataset
+The dataset is based on the training data available from the the udacity project, but I have added more data to it.
+The additional data comes from the driving on the Track 1 and A small bit of Track 2.
+
+The dataset is randomly split into 80/20 portions into training and testing sets. 
 
 ## Image Augmentation
+The data is augmented using the three basic techniques in my algorithm:
+1: Change in Brightness
+2: Random Shadow Generation
+3: Random Flip
 
+
+## Generator
+The training and validation functions are generators which when called return a set of image and label lists.
 
 #Architecture
 
 The following diagram shows the architecture of the model which was used by me. It roughly follows the NVidia Model 
-but I wanted to expriment with different types of layers and parameters I have choosen to modify it a bit. 
+but I wanted to expriment with different types of layers and parameters I have chosen to modify it a bit. 
 
-Inline-style: 
-![alt text](model.png "Behaviour Cloning Model")
+
+![Behavioral Cloning Model ](model.png "Behavioral Cloning Model")
+
 1. The first layer is a normalization layer. THe inpt to this layer takes 66x200x3 images.
 2. Most of the activation function in the layers use the PReLU. It is much more smoother activation function. I have also experimented with additional LeakyRelu but found out that it was causing a jerky motion during driving.
 3. Dropout layer were used to prevent overfitting
@@ -80,6 +100,10 @@ ________________________________________________________________________________
 # Training approach
 
 # Experiments and Results
+Based on the results achieved it was observed the algorithm learned to drive on the Track 1 
+without any major problem. Only real problem was the track 2 which has difficult lightening conditions which
+causes troubles for my model. Although my is able to cover most of track 2 it gets stuck at the end of the track which
+highly curved. This problem can be solved by adding these curved portions to solve our proved
 
 
 Is the model architecture documented?
