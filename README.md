@@ -114,15 +114,16 @@ The dataset is randomly split into 80/20 portions into training and testing sets
 
 ## Image Augmentation
 The data is augmented using the three basic techniques in my algorithm:
-1: Change in Brightness : The algorithm converts the image from RGB space to HSV space and
+
+1. Change in Brightness : The algorithm converts the image from RGB space to HSV space and
  randomly modifies the H value.
 
-2: Random Shadow Generation : The random shadow is generated using the two top and two bottm positions where 
+2. Random Shadow Generation : The random shadow is generated using the two top and two bottm positions where 
 positions are chosen randomly. Then a random value is subtracted from the pixels inside that quadrilateral.
 
 3. Image random rotation : Image is randomly rotated with a small angle.
 
-4: Random Flip : Image is flipped horizontally and the steering angle is negated to balance the left and right turns in
+4. Random Flip : Image is flipped horizontally and the steering angle is negated to balance the left and right turns in
 the driving data.
 
 
