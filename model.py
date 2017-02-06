@@ -228,22 +228,6 @@ def build_nvidia_model(img_height=66, img_width=200, img_channels=3, dropout=.4)
     return model
 
 
-def get_callbacks():
-    """
-    :return: Return the list of callbacks
-    """
-
-    checkpoint = ModelCheckpoint("checkpoints/model-{val_loss:.4f}.h5",
-                                 monitor='val_loss', verbose=1,
-                                 save_weights_only=True, save_best_only=True)
-
-    #tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=False)
-
-    earlystopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=1, mode='auto')
-
-    return [earlystopping, checkpoint]
-    # return [earlystopping]
-    # return [checkpoint, tensorboard]
 
 
 # Start of the main function
@@ -254,9 +238,17 @@ if __name__ == '__main__':
 
     plot(model, to_file='model.png', show_shapes=True)
 
+    checkpoint = ModelCheckpoint("checkpoints/model-{val_loss:.4f}.h5",
+                                 monitor='val_loss', verbose=1,
+                                 save_weights_only=True, save_best_only=True)
+
+    tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=False)
+
+    earlystopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=1, mode='auto')
+
     model.fit_generator(data_generator(data_path, batch_size),
                         samples_per_epoch=batch_size * int(num_train_images / batch_size),
-                        nb_epoch=epochs, callbacks=get_callbacks(),
+                        nb_epoch=epochs, callbacks=[earlystopping, checkpoint],
                         validation_data=val_generator(val_path, batch_size),
                         nb_val_samples=num_test_images)
 
