@@ -119,10 +119,10 @@ def jitter_image_rotation(image, steering):
 # crop camera image to fit nvidia model input shape
 def crop_camera(img, crop_height=66, crop_width=200):
     """
-    :param img: Name of the file to load
-    :param crop_height: Name of the directory
-    :param crop_width: Name of the directory
-    :return: return an image
+    :param img: Input image data
+    :param crop_height: cropped height required
+    :param crop_width: returned width required
+    :return: return an image with the desired height and width
     """
     height = img.shape[0]
     width = img.shape[1]
@@ -133,8 +133,8 @@ def crop_camera(img, crop_height=66, crop_width=200):
 
 def data_generator(path=data_path, batch_sz=128):
     """
-    :param path: Name of the file to load
-    :param batch_sz: Name of the directory
+    :param path: Path to the data only pass the parent folder
+    :param batch_sz: Batch size required to be returned by this generator
     :return: return a list of images and steering angles
     """
     train_batch_pointer = 0
@@ -163,8 +163,8 @@ def data_generator(path=data_path, batch_sz=128):
 
 def val_generator(path=val_path, batch_sz=128):
     """
-    :param path: Name of the file to load
-    :param batch_sz: Name of the directory
+    :param path: Path to the data only pass the parent folder
+    :param batch_sz: Batch size required to be returned by this generator
     :return: return a list of image and steering angles
     """
     val_batch_pointer = 0
