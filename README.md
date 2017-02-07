@@ -1,5 +1,5 @@
 # Behavioral Cloning
-This is a brief overview of my Behavioral cloning project. I started with the NVidia model initially and I found out
+This is a brief overview of my Behavioral cloning project. I started with the Nvidia model initially and I found out
 that it was sufficient to complete the project. I have experimented with several different configurations
 before settling on the configuration described below. The main thrust was to experiment and complete
 the project with some new additions.
@@ -19,14 +19,14 @@ access to the saved model parameters file, which in our case is the model.h5 and
 The training and validation functions are generators which when called return a set of image and label lists. 
 They take 2 inputs each. The first input described the path where a particular dataset and the next parameter specifies the
 batch size of the data to be returned. 
-The training data generator is different from the validaton data generator because it contains the options to generate the 
+The training data generator is different from the validation data generator because it contains the options to generate the 
 augmented images using the random shadow, a small jitter and flipping options.
 
 
 
 #Architecture
 
-The following diagram shows the architecture of the model which was used by me. It roughly follows the NVidia Model 
+The following diagram shows the architecture of the model which was used by me. It roughly follows the Nvidia Model 
 but I wanted to experiment with different types of layers and parameters I have chosen to modify it a bit. 
 
 **_Has an appropriate model architecture been employed for the task?_**
@@ -48,7 +48,7 @@ Nadam optimizer has been used which is a modified version of the Adam optimizer.
 2. Most of the activation function in the layers use the PReLU. It is much more smoother activation function. 
 I have also experimented with additional LeakyRelu but found out that it was causing a jerky motion during driving.
 3. Dropout layer were used to prevent overfitting
-4. The Nestrov Adam optimizer was used for optimziation.
+4. The Nestrov Adam optimizer was used for optimization.
 The complete architecture was modelled as shown below.
 ```
 ____________________________________________________________________________________________________
@@ -108,9 +108,22 @@ ________________________________________________________________________________
 # Dataset
 **_Is the training data chosen appropriately?_**
 The dataset is based on the training data available from the the udacity project, but I have added more data to it.
-The additional data comes from the driving on the Track 1 and A small bit of Track 2.
+The additional data comes from the driving on the Track 1 and a small bit of Track 2.
+The dataset contains images both in reverse and forward direction on track 1. The left and right side images were taken as
+an additional data where the steering angle for left side images were increased by 0.3 and for right side image it was 
+reduced by 0.3. This values was found after experimentation.
+Original dataset contains a large number images which is around 0 degrees. The histogram of distribution of the steering 
+angles is shown below:
+      ![Original Image](ohist.jpg "Original Image")
 
-The dataset is randomly split into 80/20 portions into training and testing sets. 
+To filter this data and to make the dataset more balanced the angles which appear more than 2000 times
+ were restricted around 700. This effectively enhanced the angles which were under represented.
+      ![Original Image](filtered.jpg "Original Image")
+
+
+The dataset is randomly split into 80/20 portions where 80% is the training and rest is testing set.
+The training is enough for 20 epochs over complete dataset. The batch size was chosen to be 256 as my system
+was able to handle it gracefully. 
 
 ## Image Augmentation
 The data is augmented using the three basic techniques in my algorithm:
@@ -118,8 +131,15 @@ The data is augmented using the three basic techniques in my algorithm:
 1. Change in Brightness : The algorithm converts the image from RGB space to HSV space and
  randomly modifies the H value.
 
-2. Random Shadow Generation : The random shadow is generated using the two top and two bottm positions where 
+2. Random Shadow Generation : The random shadow is generated using the two top and two bottom positions where 
 positions are chosen randomly. Then a random value is subtracted from the pixels inside that quadrilateral.
+      ![Original Image](original.jpg "Original Image")
+
+      ![Shadow1 Image](shadow1.jpg "Shadow 1 Image") ![Shadow2 Image](shadow2.jpg "Shadow 2 Image")
+
+      ![Shadow3 Image](shadow3.jpg "Shadow 3 Image") ![Shadow4 Image](shadow4.jpg "Shadow 4 Image")
+
+
 
 3. Image random rotation : Image is randomly rotated with a small angle.
 
